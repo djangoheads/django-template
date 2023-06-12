@@ -1,0 +1,77 @@
+[tool.poetry]
+name = "{{ cookiecutter.project_slug }}"
+version = "{{ cookiecutter.version }}"
+description = "{{ cookiecutter.project_short_description }}"
+authors = ["{{ cookiecutter.author_name }} <{{ cookiecutter.author_email }}>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+Django = "^4.2.2"
+dynaconf = "^3.1.12"
+sentry-sdk = "^1.25.1"
+psycopg2 = "^2.9.6"
+gunicorn = "^20.1.0"
+whitenoise = "^6.4.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.3.0"
+pytest = "^7.3.2"
+pre-commit = "^3.3.2"
+pytest-sugar = "^0.9.7"
+pytest-cov = "^4.1.0"
+pytest-timeout = "^2.1.0"
+isort = "^5.12.0"
+flake8 = "^6.0.0"
+autoflake = "^2.1.1"
+mccabe = "^0.7.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+force_single_line = true
+atomic = true
+include_trailing_comma = true
+lines_after_imports = 2
+lines_between_types = 1
+use_parentheses = true
+src_paths = ["src/service", "tests"]
+skip_glob = ["*/setup.py"]
+filter_files = true
+known_first_party = "src"
+
+[tool.black]
+line-length = 120
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | \.log
+  | _build
+  | buck-out
+  | build
+  | dist
+  | tests/.*/setup.py
+)/
+'''
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:"
+]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--timeout=0.01"
+testpaths = [
+    "tests"
+]

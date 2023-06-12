@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # 1. Build image
+  builder:
+    build:
+      context: .
+      args:
+        DOCKER_BUILD_REQUIREMENTS: requirements.dev.txt
+    image: {{ cookiecutter.project_slug }}/backend:local
+    entrypoint: echo
+    command: 'Sorry I will not run, my destiny is to be built and die, see you in next run!'
+
+  # 2. Database
+  storage:
+    image: postgres:14
+    env_file:
+      - docker-compose.env
+    ports:
+      - 5432:5432
+    volumes:
+      - .pgdata:/data/postgres
+    command: postgres -c 'max_connections=400'
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U service" ]
+      interval: 1s
+      timeout: 1s
+      retries: 5
+
+  # 3. Migration
+  migration:
+    image: {{ cookiecutter.project_slug }}/backend:local
+    depends_on:
+      builder:
+        condition: service_completed_successfully
+      storage:
+        condition: service_healthy
+    env_file:
+      # - .env
+      - docker-compose.env
+    volumes:
+      - ./src/:/home/app/libs
+    command: migrate
+
+  # 4. Application, API and Admin
+  backend:
+    image: {{ cookiecutter.project_slug }}/backend:local
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+    ports:
+      - 8000:8000
+    volumes:
+      - ./src/:/home/app/libs
+      - ./.log:/tmp/log
+    command: devserver
+    env_file:
+      # - .env
+      - docker-compose.env

@@ -1,0 +1,17 @@
+celerybeat.pid
+celerybeat-schedule
+.env
+db.sqlite3
+dump.rdb
+README.md
+public/
+sessions/
+.venv/
+__pycache__/
+.idea/
+.DS_Store
+*.rdb
+supervisord.log
+supervisord.pid
+chromedriver
+node_modules/
