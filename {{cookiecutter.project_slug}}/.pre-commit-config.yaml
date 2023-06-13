@@ -33,3 +33,27 @@ repos:
     hooks:
       - id: detect-secrets
         args: ['--baseline', '.secrets.baseline']
+
+  - repo: https://github.com/best-doctor/pre-commit-hooks
+    rev: v1.0.4
+    hooks:
+    - id: mccabe-complexity
+      name: Check functions complexity
+      language: python
+    - id: expr-complexity
+      name: Check expressions complexity
+      exclude: /samples/
+      language: python
+    - id: no-asserts
+      name: Check no asserts in code
+      language: python
+      exclude: /tests/
+    - id: test-naming
+      name: Check if tests named appropriately
+      language: python
+    - id: line-count
+      name: Check number of lines in python files
+      language: python
+    - id: old-style-annotations
+      name: Check old-style annotations
+      language: python
