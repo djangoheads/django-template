@@ -41,6 +41,19 @@ services:
     volumes:
       - ./src/:/home/app/libs
     command: migrate
+  
+  # 3.1 Create Super 
+  migration-user:
+    image: *image
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+      - docker-compose.env
+    volumes:
+      - ./backend/src:/home/app/libs
+    command: createsuperuser
 
   # 4. Application, API and Admin
   backend:
