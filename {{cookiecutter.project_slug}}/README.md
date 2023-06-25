@@ -39,7 +39,11 @@
 
 ## Build base image 
 
-    docker build -t djangoheads/{{ cookiecutter.project_slug }}:base .
+    docker build -f base.Dockerfile -t djangoheads/{{ cookiecutter.project_slug }}:base .
+
+## Add Dependecy to pyproject.toml example
+
+    docker run -it -v $(pwd)/backend:/app -w /app djangoheads/{{ cookiecutter.project_slug }}:base poetry add [dependency name]
 
 ## Update poetry.lock and pyproject.toml
 
