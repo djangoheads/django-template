@@ -34,6 +34,11 @@ repos:
       - id: detect-secrets
         args: ['--baseline', '.secrets.baseline']
 
+  - repo: https://github.com/dhruvmanila/remove-print-statements
+    rev: ''  # Replace with latest tag on GitHub
+    hooks:
+    - id: remove-print-statements
+
   - repo: https://github.com/best-doctor/pre-commit-hooks
     rev: v1.0.4
     hooks:
