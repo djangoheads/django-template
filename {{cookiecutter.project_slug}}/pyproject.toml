@@ -6,7 +6,7 @@ authors = ["{{ cookiecutter.author_name }} <{{ cookiecutter.author_email }}>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 Django = "^4.2.2"
 dynaconf = "^3.1.12"
 sentry-sdk = "^1.25.1"
