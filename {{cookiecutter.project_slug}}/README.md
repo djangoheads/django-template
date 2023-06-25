@@ -39,15 +39,15 @@
 
 ## Build base image 
 
-    docker build -t djangoheads/{{ cookiecutter.project_short_description }}:base .
+    docker build -t djangoheads/{{ cookiecutter.project_slug }}:base .
 
 ## Update poetry.lock and pyproject.toml
 
-    docker run -it -v $(pwd)/backend:/app -w /app djangoheads/{{ cookiecutter.project_short_description }}:base poetry update --lock
+    docker run -it -v $(pwd)/backend:/app -w /app djangoheads/{{ cookiecutter.project_slug }}:base poetry update --lock
 
 ## Update requirements.txt
 
-    docker run -it -v $(pwd)/backend:/app -w /app djangoheads/{{ cookiecutter.project_short_description }}:base poetry export -o requirements.txt
+    docker run -it -v $(pwd)/backend:/app -w /app djangoheads/{{ cookiecutter.project_slug }}:base poetry export -o requirements.txt
     
 ### Development 
-    docker run -it -v $(pwd)/backend:/app -w /app djangoheads/{{ cookiecutter.project_short_description }}:base poetry export --with dev -o requirements.dev.txt
+    docker run -it -v $(pwd)/backend:/app -w /app djangoheads/{{ cookiecutter.project_slug }}:base poetry export --with dev -o requirements.dev.txt
