@@ -53,6 +53,8 @@ RUN chmod +x -R /home/app/libs
 USER app
 EXPOSE 8000
 
+VOLUME /var/www/media
+
 ENTRYPOINT ["entrypoint.sh"]
 
 CMD ["serve"]
