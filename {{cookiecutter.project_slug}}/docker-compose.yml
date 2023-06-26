@@ -37,7 +37,7 @@ services:
       - .env
       - docker-compose.env
     volumes:
-      - ./src/:/home/app/libs
+      - ./src:/home/app/libs
     command: migrate
   
   # 3.1 Create Super 
@@ -62,7 +62,7 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - ./src/:/home/app/libs
+      - ./src:/home/app/libs
       - ./.log:/tmp/log
     command: devserver
     env_file:
