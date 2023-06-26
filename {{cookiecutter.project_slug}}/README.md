@@ -16,6 +16,10 @@
     cd backend 
     pip install -r requirements.dev.txt
 
+## Install Pre-Commits 
+
+    pre-commit install
+
 # Run  
 
 ## First time 
