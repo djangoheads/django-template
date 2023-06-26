@@ -50,7 +50,7 @@ services:
       - .env
       - docker-compose.env
     volumes:
-      - ./backend/src:/home/app/libs
+      - ./src:/home/app/libs
     command: createsuperuser
 
   # 4. Application, API and Admin
@@ -66,5 +66,5 @@ services:
       - ./.log:/tmp/log
     command: devserver
     env_file:
-      # - .env
+      - .env
       - docker-compose.env
