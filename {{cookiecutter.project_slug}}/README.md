@@ -12,8 +12,7 @@
 
 ## Install Requirements 
 
-    brew install python=3.11
-    cd backend 
+    brew install python@3.11
     pip install -r requirements.dev.txt
 
 ## Install Pre-Commits 
