@@ -15,6 +15,7 @@ sub_help(){
     echo "Subcommands:"
     echo "    migrate           Run migrations"
     echo "    collectstatic     Collect Static Files and exit"
+# pragma: allowlist nextline secret
     echo "    createsuperuser   Create default super admin user with login 'admin' and password='admin' and exit"
     echo "    django            Run any django command and exit"
     echo "    celery            Run Celery worker"
