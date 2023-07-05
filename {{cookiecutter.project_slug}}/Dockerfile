@@ -45,14 +45,15 @@ COPY --chown=app ./settings.yaml /home/app/config/settings.yaml
 COPY --chown=app ./src /home/app/libs/
 
 # Init static
-RUN mkdir -p /var/www/static
-RUN chown -R app:app /var/www/static
+RUN mkdir -p /var/www/static && chown -R app:app /var/www/static
 
 RUN chmod +664 -R /home/app
 RUN chmod +x -R /home/app/libs
 USER app
 EXPOSE 8000
 
+# Init media 
+RUN mkdir -p /var/www/media && chown -R app:app /var/www/media
 VOLUME /var/www/media
 
 ENTRYPOINT ["entrypoint.sh"]
