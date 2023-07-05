@@ -54,7 +54,6 @@ EXPOSE 8000
 
 # Init media 
 RUN mkdir -p /var/www/media && chown -R app:app /var/www/media
-VOLUME /var/www/media
 
 ENTRYPOINT ["entrypoint.sh"]
 
