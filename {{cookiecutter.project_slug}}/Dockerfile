@@ -49,8 +49,8 @@ RUN chmod +x -R /home/app/libs
 RUN mkdir -p /var/www/static && chown -R app:app /var/www/static
 RUN chmod +664 -R /home/app
 
-# Init media 
-RUN mkdcdir -p /var/www/media && chown -R app:app /var/www/media
+# Init media
+RUN mkdir -p /var/www/media && chown -R app:app /var/www/media
 VOLUME ["/var/www/media"]
 
 USER app
