@@ -16,7 +16,7 @@ brew install gcc
 ## Install Requirements 
 ```shell
 brew install python@3.11
-pip install -r requirements.dev.txt
+pip3.11 install -r requirements.dev.txt
 ```
 
 ## Install Pre-Commits 
