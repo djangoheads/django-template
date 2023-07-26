@@ -71,7 +71,6 @@ exclude_lines = [
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--timeout=0.01"
 testpaths = [
     "tests"
 ]
