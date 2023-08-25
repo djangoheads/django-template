@@ -34,21 +34,21 @@ services:
       storage:
         condition: service_healthy
     env_file:
-      - .env
       - docker-compose.env
+      - .env
     volumes:
       - ./src:/home/app/libs
     command: migrate
-  
-  # 3.1 Create Super 
+
+  # 3.1 Create Super
   migration-user:
     image: *image
     depends_on:
       migration:
         condition: service_completed_successfully
     env_file:
-      - .env
       - docker-compose.env
+      - .env
     volumes:
       - ./src:/home/app/libs
     command: createsuperuser
@@ -66,5 +66,5 @@ services:
       - ./.log:/tmp/log
     command: devserver
     env_file:
-      - .env
       - docker-compose.env
+      - .env
