@@ -5,7 +5,7 @@ DEFAULT_APP_HOST="0.0.0.0"
 DEFAULT_APP_GUNICORN_USE="service.wsgi:application"
 
 if command -v nproc > /dev/null; then
-    DEFAULT_APP_GUNICORN_WORKERS=$(nproc)
+    DEFAULT_APP_GUNICORN_WORKERS=$(nproc) || exit 1
 else
     DEFAULT_APP_GUNICORN_WORKERS=$(sysctl -n hw.physicalcpu) || exit 1
 fi
@@ -61,7 +61,7 @@ run_serve() {
     APP_GUNICORN_USE="${1:-$APP_GUNICORN_USE}"
 
     printf "Collecting static files: %s\n" "$APP_GUNICORN_USE"
-    run_collectstatic
+    run_collectstatic || exit 1
     printf "Gunicorn running: %s\n" "$APP_GUNICORN_USE"
     gunicorn -b "$APP_HOST:$APP_PORT" -c /home/app/config/gunicorn.conf.py -w "$APP_GUNICORN_WORKERS" "$APP_GUNICORN_USE" || exit 1
 }
