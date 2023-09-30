@@ -1,75 +1,88 @@
 #!/usr/bin/env bash
 
-APP_GUNICORN_USE=${APP_GUNICORN_USE:-"service.wsgi:application"}
+DEFAULT_APP_PORT="8000"
+DEFAULT_APP_HOST="0.0.0.0"
+DEFAULT_APP_GUNICORN_USE="service.wsgi:application"
 
-APP_GUNICORN_WORKERS_DEFAULT=$(nproc || (sysctl -n hw.physicalcpu && exit 1))
-APP_GUNICORN_WORKERS=${APP_GUNICORN_WORKERS:-$APP_GUNICORN_WORKERS_DEFAULT}
+if command -v nproc > /dev/null; then
+    DEFAULT_APP_GUNICORN_WORKERS=$(nproc)
+else
+    DEFAULT_APP_GUNICORN_WORKERS=$(sysctl -n hw.physicalcpu) || exit 1
+fi
 
-APP_HOST=${APP_HOST:-"0.0.0.0"}
-APP_PORT=${APP_PORT:-"8000"}
+APP_PORT="${APP_PORT:-$DEFAULT_APP_PORT}"
+APP_HOST="${APP_HOST:-$DEFAULT_APP_HOST}"
+APP_GUNICORN_USE="${APP_GUNICORN_USE:-$DEFAULT_APP_GUNICORN_USE}"
+APP_GUNICORN_WORKERS="${APP_GUNICORN_WORKERS:-$DEFAULT_APP_GUNICORN_WORKERS}"
 
-ProgName=$(basename $0)
+PROG_NAME=$(basename "$0")
 
-sub_help(){
-    echo "Usage: $ProgName <subcommand> [options]\n"
-    echo "Subcommands:"
-    echo "    migrate           Run migrations"
-    echo "    collectstatic     Collect Static Files and exit"
-# pragma: allowlist nextline secret
-    echo "    createsuperuser   Create default super admin user with login 'admin' and password='admin' and exit"
-    echo "    django            Run any django command and exit"
-    echo "    celery            Run Celery worker"
-    echo "    serve             Run WSGI server"
-    echo ""
-    echo "For help with each subcommand run:"
-    echo "$ProgName <subcommand> -h|--help"
-    echo ""
+display_help() {
+    printf "\n"
+    printf "Usage: %s <subcommand> [options]\n\n" "$PROG_NAME"
+    printf "Subcommands:\n"
+    printf "    migrate                 Run migrations\n"
+    printf "    collectstatic           Collect Static Files and exit\n"
+    printf "    createsuperuser         Create default super admin user with login 'admin' and password='admin' and exit\n"
+    printf "    django                  Run any django command and exit\n"
+    printf "    celery                  Run Celery worker\n"
+    printf "    serve [gunicorn_use]    Run Gunicorn with [gunicorn_use] or the default wsgi/asgi APP_GUNICORN_USE\n"
+    printf "    devserver               Run Django's development server\n"
+    printf "\n"
+    printf "For help with each subcommand run:\n"
+    printf "%s <subcommand> -h|--help\n\n" "$PROG_NAME"
 }
 
-sub_migrate(){
-    django-admin createcachetable
-    django-admin migrate --noinput
+run_migrate() {
+    django-admin createcachetable || exit 1
+    django-admin migrate --noinput || exit 1
 }
 
-sub_collectstatic(){
-    django-admin collectstatic --noinput
+run_collectstatic() {
+    django-admin collectstatic --noinput || exit 1
 }
 
-sub_createsuperuser(){
-    echo "from django.contrib.auth import get_user_model; bool(get_user_model().objects.filter(username='admin').count()) or get_user_model().objects.create_superuser('admin', 'admin@example.com', 'admin')" | django-admin shell
+run_createsuperuser() {
+    echo "from django.contrib.auth import get_user_model; bool(get_user_model().objects.filter(username='admin').count()) or get_user_model().objects.create_superuser('admin', 'admin@example.com', 'admin')" | django-admin shell || exit 1
 }
 
-sub_django(){
-    django-admin $@
+run_django() {
+    django-admin "$@" || exit 1
 }
 
-sub_celery(){
+run_celery() {
     rm -f /tmp/celeryd.pid || true
-    celery $APP_CELERY
+    celery "$APP_CELERY" || exit 1
 }
 
-sub_serve(){
-    django-admin collectstatic --noinput
-    echo "Running Gunicorn"
-    gunicorn -b ${APP_HOST}:${APP_PORT} -c /home/app/config/gunicorn.conf.py -t 60 --keep-alive 10 --preload -w $APP_GUNICORN_WORKERS $APP_GUNICORN_USE
+run_serve() {
+
+    # Override APP_GUNICORN_USE if specified
+    APP_GUNICORN_USE="${1:-$APP_GUNICORN_USE}"
+
+    printf "Collecting static files: %s\n" "$APP_GUNICORN_USE"
+    run_collectstatic
+    printf "Gunicorn running: %s\n" "$APP_GUNICORN_USE"
+    gunicorn -b "$APP_HOST:$APP_PORT" -c /home/app/config/gunicorn.conf.py -w "$APP_GUNICORN_WORKERS" "$APP_GUNICORN_USE" || exit 1
 }
 
-sub_devserver(){
+run_devserver(){
     django-admin runserver ${APP_HOST}:${APP_PORT}
 }
 
-subcommand=$1
-case $subcommand in
-    "" | "-h" | "--help")
-        sub_help
-        ;;
-    *)
-        shift
-        sub_${subcommand} $@
-        if [ $? = 127 ]; then
-            echo "Error: '$subcommand' is not a known subcommand." >&2
-            echo "       Run '$ProgName --help' for a list of known subcommands." >&2
-            exit 1
-        fi
-        ;;
-esac
+
+SUBCOMMAND="${1//-/_}"
+shift
+
+if [[ -z "$SUBCOMMAND" ]]; then
+    display_help
+    exit 1
+fi
+
+if declare -f "run_$SUBCOMMAND" > /dev/null; then
+    "run_$SUBCOMMAND" "$@"
+else
+    printf "'%s' is not a known command.\n" "$SUBCOMMAND"
+    printf "Run '%s --help' for a list of known commands.\n" "$PROG_NAME"
+    exit 1
+fi
