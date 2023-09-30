@@ -64,9 +64,11 @@ case $subcommand in
         sub_help
         ;;
     *)
-        shift
-        sub_${subcommand} $@
-        if [ $? = 127 ]; then
+        if declare -f "sub_${subcommand}" > /dev/null; then
+            args=("$@")
+            shift
+            "sub_${subcommand}" "${args[@]:1}"
+        else
             echo "Error: '$subcommand' is not a known subcommand." >&2
             echo "       Run '$ProgName --help' for a list of known subcommands." >&2
             exit 1
