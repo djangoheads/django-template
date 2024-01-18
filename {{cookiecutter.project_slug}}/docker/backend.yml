@@ -1,0 +1,50 @@
+version: '3.8'
+
+x-image: &image {{ cookiecutter.project_slug }}:dev
+x-entrypoint: &entrypoint python manage.py
+x-volumes: &volumes
+  - ../config/settings.yaml:/home/app/config/settings.yaml
+  - ../config/gunicorn.conf.py:/home/app/config/gunicorn.conf.py
+  - ../src:/home/app/libs
+  # Docker-Compose settings
+  - ./config/override.yaml:/home/app/config/override.yaml
+  - ./config/.secrets.yaml:/home/app/config/.secrets.yaml
+
+services:
+
+  storage:
+    image: postgres:15
+    env_file:
+      - backend.env
+    command: postgres -c 'max_connections=400'
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U service" ]
+      interval: 1s
+      timeout: 1s
+      retries: 30
+
+  init:
+    image: *image
+    volumes: *volumes
+    depends_on:
+      storage:
+        condition: service_healthy
+    env_file:
+      - backend.env
+      - ../.env
+    entrypoint: *entrypoint
+    command: initdjango
+
+  backend: &backend
+    image: *image
+    volumes: *volumes
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    ports:
+      - 8000:8000
+    env_file:
+      - backend.env
+      - ../.env
+    # NOTE: Do not set entrypoint as this image will become incompatible with PyCharm Remote Debugger
+    command: python manage.py runserver 0.0.0.0:8000

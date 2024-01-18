@@ -1,0 +1,39 @@
+version: '3.8'
+
+x-volumes: &volumes
+  # Base Settings
+  - ../config/settings.yaml:/home/app/config/settings.yaml:ro
+  - ../src:/home/app/libs:ro
+  - ../tests:/home/app/tests:ro
+  # Docker-Compose settings
+  - ./config/override.yaml:/home/app/config/override.yaml:ro
+  - ./config/.secrets.yaml:/home/app/config/.secrets.yaml:ro
+
+services:
+
+  build-base:
+    image: {{ cookiecutter.project_slug }}:base
+    build:
+      pull: true
+      context: ../
+      dockerfile: base.Dockerfile
+    entrypoint: echo
+    command: 'Sorry I will not run, my destiny is to be built and die, see you in next run!'
+
+  build-production:
+    image: {{ cookiecutter.project_slug }}:latest
+    build:
+      pull: true
+      context: ../
+    entrypoint: echo
+    command: 'Sorry I will not run, my destiny is to be built and die, see you in next run!'
+
+  build-development:
+    image: {{ cookiecutter.project_slug }}:dev
+    build:
+      pull: true
+      context: ../
+      args:
+        DOCKER_BUILD_REQUIREMENTS: requirements.dev.txt
+    entrypoint: echo
+    command: 'Sorry I will not run, my destiny is to be built and die, see you in next run!'

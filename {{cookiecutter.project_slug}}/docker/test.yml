@@ -1,0 +1,91 @@
+version: '3.8'
+
+x-env: &x-env
+  DJANGO_ENV: local
+x-image: &image {{ cookiecutter.project_slug }}:dev
+x-volumes: &volumes
+  - ../config/settings.yaml:/home/app/config/settings.yaml:ro
+  - ../pyproject.toml:/home/app/pyproject.toml:ro
+  - ../config/fixtures:/home/app/fixtures:ro
+  - ../src:/home/app/libs:ro
+  - ../tests:/home/app/tests:ro
+  # Docker-Compose settings
+  - ./config/override.yaml:/home/app/config/override.yaml:ro
+  - ./config/.secrets.yaml:/home/app/config/.secrets.yaml:ro
+
+services:
+
+  # 1.0 pre-commit
+  pre-commit:
+    image: *image
+    volumes:
+      - ../:/tmp/backend:ro
+      - ../tests:/tmp/tests:ro
+      - ../.pre-commit-config.yaml:/home/app/.pre-commit-config.yaml:ro
+      - ../.secrets.baseline:/home/app/.secrets.baseline:ro
+      - ../.flake8:/home/app/.flake8:ro
+    environment: *x-env
+    working_dir: /home/app
+    command: >
+      bash -c "git init -b main .
+      && mkdir -p /home/app/apps/backend/ /home/app/tests/
+      && cp -R /tmp/backend/* /home/app/apps/backend/
+      && cp -R /tmp/tests/* /home/app/tests/
+      && git add .
+      && pre-commit run --all-files"
+
+  # 1.1 Test Checks
+  check:
+    depends_on:
+      pre-commit:
+        condition: service_completed_successfully
+    image: *image
+    volumes: *volumes
+    environment: *x-env
+    entrypoint: python manage.py
+    command: check --fail-level WARNING
+
+  # 1.2 Test Migrations
+  migrations:
+    depends_on:
+      check:
+        condition: service_completed_successfully
+    image: *image
+    volumes: *volumes
+    environment: *x-env
+    entrypoint: bash -c
+    command:
+      - >
+        python manage.py makemigrations --no-input --check
+        || (echo '::error::Migrations are not up to date, please run 'makemigrations' locally and push the changes.'
+            && exit 1)
+
+  # 2.1 Test Application
+  test: &test
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+    image: *image
+    volumes: *volumes
+    environment: *x-env
+    working_dir: /home/app
+    entrypoint: pytest
+    command:
+      - --cov=service
+      - --cov-report=html:/home/app/.artifacts/coverage/html
+      - --cov-report=lcov:/home/app/.artifacts/coverage/.coverage.info  # TODO: covfile for github see: https://github.com/marketplace/actions/code-coverage-report
+      - ./tests/
+{%- if cookiecutter.test_bdd == true -%}
+
+  # 2.1 Test BDD
+  behave:
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+    image: *image
+    volumes: *volumes
+    command: python manage.py behave --no-capture ../tests/bdd --tags ~@notimplemented
+    environment:
+      <<: *x-env
+      DJANGO_INSTALLED_APPS: "@merge behave_django"
+{%- endif -%}

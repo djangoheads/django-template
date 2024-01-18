@@ -44,29 +44,29 @@ docker compose up --build
 ## Admin interface 
 http://localhost:8000/admin/
 
-# Working with deps 
+# Working with deps
 
-## Build base image 
+## Pull latest DjangoHeads tools image
 ```shell
-docker build -f base.Dockerfile -t djangoheads/{{ cookiecutter.project_slug }}:base .
+docker pull djangoheads/tools:3.11-latest
 ```
 
 ## Add Dependency to pyproject.toml example
 ```shell
-docker run -it -v $(pwd):/app -w /app djangoheads/{{ cookiecutter.project_slug }}:base poetry add [dependency name]
+docker run -it -v $(pwd):/app -w /app djangoheads/tools:3.11-latest poetry add [dependency name]
 ```
 
 ## Update poetry.lock and pyproject.toml
 ```shell
-docker run -it -v $(pwd):/app -w /app djangoheads/{{ cookiecutter.project_slug }}:base poetry update --lock
+docker run -it -v $(pwd):/app -w /app djangoheads/tools:3.11-latest poetry update --lock
 ```
 
 ## Update requirements.txt
 ```shell
-docker run -it -v $(pwd):/app -w /app djangoheads/{{ cookiecutter.project_slug }}:base poetry export -o requirements.txt
+docker run -it -v $(pwd):/app -w /app djangoheads/tools:3.11-latest poetry export -o requirements.txt
 ```
     
 ### Development 
 ```shell
-docker run -it -v $(pwd):/app -w /app djangoheads/{{ cookiecutter.project_slug }}:base poetry export --with dev -o requirements.dev.txt
+docker run -it -v $(pwd):/app -w /app djangoheads/tools:3.11-latest poetry export --with dev -o requirements.dev.txt
 ```

@@ -5,5 +5,6 @@
     "project_name": "Dummy",
     "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
     "project_short_description": "Django Initial Dummy Project",
+    "test_bdd": false,
     "version": "0.1.0"
 }

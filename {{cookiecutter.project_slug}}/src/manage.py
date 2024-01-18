@@ -3,8 +3,6 @@
 import os
 import sys
 
-sys.path.append("src")
-
 
 def main():
     """Run administrative tasks."""
