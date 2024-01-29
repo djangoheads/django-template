@@ -14,12 +14,28 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install project and run tests
+      - name: Install project and run backend
         run: |
           python -m pip install --upgrade pip
-#          pip install cookiecutter
-#          cookiecutter . --no-input --output-dir /tmp
-#          cd /tmp/dummy
-#          echo "DJANGO_DEBUG=1" > .env
-#          docker compose build
-#          docker compose up
+          pip install cookiecutter
+          cookiecutter . --no-input --output-dir /tmp
+          cd /tmp/dummy
+          git init .
+          git add .
+          pip3.11 install -r requirements.dev.txt
+          pre-commit run -a
+          echo "DJANGO_DEBUG=1" > .env 
+          docker compose -f docker/build.yml build
+          docker compose -f docker/backend.yml up --build -d
+
+      - name: Wait port 8000 to be ready
+        run: |
+          while [ 0 -lt 180 ]; do # Loop 180 times (180 seconds)
+            if nc -z localhost 8000; then # Check if port 8000 is open
+              exit 0 # Exit with success
+            fi
+            sleep 1 # Wait 1 second before next attempt
+          done
+          cd /tmp/dummy
+          docker compose logs --tail=30 -f docker/backend.yml
+          exit 1 # Exit with error
