@@ -1,6 +1,5 @@
 local:
   DEBUG: 1
-  BASE_URL: http://localhost:8000
   CSRF_TRUSTED_ORIGINS:
     - http://localhost:8000
   INTERNAL_IPS:
@@ -9,7 +8,6 @@ local:
     - localhost
 test:
   DEBUG: 1
-  BASE_URL: http://localhost:8000
   CSRF_TRUSTED_ORIGINS:
     - http://localhost:8000
   INTERNAL_IPS:
