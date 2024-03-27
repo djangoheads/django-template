@@ -1,6 +1,5 @@
 default:
   DEBUG: 0
-  BASE_URL: http://localhost:8000
   SECRET_KEY: null
   CSRF_TRUSTED_ORIGINS:
     - http://localhost:8000
