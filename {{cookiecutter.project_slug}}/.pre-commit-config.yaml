@@ -1,66 +1,41 @@
 repos:
-  # TODO: Find way to make it compatible with black 
-  # - repo: https://github.com/timothycrosley/isort
-  #   rev: 5.12.0
-  #   hooks:
-  #     - id: isort
-  #       additional_dependencies: [toml]
-  #       args: ["--profile", "black"]
-  #       exclude: ^.*/?setup\.py$
-  
-  - repo: https://github.com/psf/black
-    rev: 23.3.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.14
     hooks:
-      - id: black
-
-  - repo: https://github.com/pycqa/flake8
-    rev: 6.0.0
-    hooks:
-      - id: flake8
-
+      - id: ruff-format
+        args:
+          - --preview
+        files: ^(tests/|src/).*$
+      - id: ruff
+        name: ruff-src
+        args:
+          - --preview
+          - --fix
+          - --unsafe-fixes
+        files: ^src/.*$
+      - id: ruff
+        name: ruff-tests
+        args:
+          - --preview
+          - --fix
+          - --unsafe-fixes
+          - --extend-ignore
+          - ANN
+          - --extend-ignore
+          - D
+        files: ^tests/.*$
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
-      - id: trailing-whitespace
-        exclude: |
-          (?x)(
-            ^tests/.*/fixtures/.*
-          )
-      - id: end-of-file-fixer
-        exclude: ^tests/.*/fixtures/.*
+      - id: check-added-large-files
+      - id: check-toml
+      - id: check-yaml
+        args:
+          - --unsafe
       - id: debug-statements
-
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.4.0
     hooks:
       - id: detect-secrets
-        args: ['--baseline', '.secrets.baseline']
-
-  - repo: https://github.com/dhruvmanila/remove-print-statements
-    rev: ''  # Replace with latest tag on GitHub
-    hooks:
-    - id: remove-print-statements
-
-  - repo: https://github.com/best-doctor/pre-commit-hooks
-    rev: v1.0.4
-    hooks:
-    - id: mccabe-complexity
-      name: Check functions complexity
-      language: python
-    - id: expr-complexity
-      name: Check expressions complexity
-      exclude: /samples/
-      language: python
-    - id: no-asserts
-      name: Check no asserts in code
-      language: python
-      exclude: /tests/
-    - id: test-naming
-      name: Check if tests named appropriately
-      language: python
-    - id: line-count
-      name: Check number of lines in python files
-      language: python
-    - id: old-style-annotations
-      name: Check old-style annotations
-      language: python
+        args:
+          - scan > .secrets.baseline

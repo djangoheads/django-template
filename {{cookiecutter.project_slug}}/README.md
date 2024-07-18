@@ -11,8 +11,6 @@ sudo apt-get install build-essential
 brew install gcc
 ```
 
-    
-
 ## Install Requirements 
 ```shell
 brew install python@3.11
@@ -29,7 +27,7 @@ pre-commit install
 ## First time 
 ```shell
 echo "DJANGO_DEBUG=1" > .env 
-docker compose build 
+docker compose -f docker/build.yml build
 ```
     
 ## Default Admin creds 
@@ -38,7 +36,7 @@ docker compose build
 
 ## Next times 
 ```shell
-docker compose up --build
+docker compose -f docker/backend.yml up --build
 ```
 
 ## Admin interface 
@@ -46,27 +44,27 @@ http://localhost:8000/admin/
 
 # Working with deps
 
-## Pull latest DjangoHeads tools image
-```shell
-docker pull djangoheads/tools:3.11-latest
-```
-
 ## Add Dependency to pyproject.toml example
 ```shell
-docker run -it -v $(pwd):/app -w /app djangoheads/tools:3.11-latest poetry add [dependency name]
+docker compose -f docker/utils.yml run poetry add [dependency name]
 ```
 
-## Update poetry.lock and pyproject.toml
+## Remove Dependency to pyproject.toml example
 ```shell
-docker run -it -v $(pwd):/app -w /app djangoheads/tools:3.11-latest poetry update --lock
+docker compose -f docker/utils.yml run poetry remove [dependency name]
 ```
 
-## Update requirements.txt
+## Update dependencies in pyproject.toml and poetry.lock
 ```shell
-docker run -it -v $(pwd):/app -w /app djangoheads/tools:3.11-latest poetry export -o requirements.txt
+docker compose -f docker/utils.yml run poetry update --lock
 ```
-    
-### Development 
+
+## Export to requirements.txt and requirements.dev.txt
 ```shell
-docker run -it -v $(pwd):/app -w /app djangoheads/tools:3.11-latest poetry export --with dev -o requirements.dev.txt
+docker compose -f docker/utils.yml run poetry-export
+```
+
+# Create Django Migrations
+```shell
+docker compose -f docker/utils.yml run makemigrations
 ```
